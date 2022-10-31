@@ -32,7 +32,8 @@ def register():
     user = list(query.fetch())[0]
     print(user.key)
     print("Key ^ User v")
-    print(user)
+    print(user.email)
+    print(user.password)
 
     if user is not None:
         return "There is a user with this email", 409
