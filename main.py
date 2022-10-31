@@ -17,7 +17,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 auth = HTTPBasicAuth()
 datastore_client = datastore.Client()
 
-users = {}
+
 
 
 @app.route('/register', methods=['POST'])
@@ -26,6 +26,11 @@ def register():
     print(request.args)
     username = request.json['email']
     password = request.json['password']
+
+    query = datastore_client.query(kind="Users")
+    query.add_filter("email", "=", username)
+    users = dict(query.fetch())
+    print(users)
 
     if username in users:
         return "There is a user with this email", 409
@@ -40,8 +45,8 @@ def register():
         datastore_client.put(user)
 
         # Store locally username and password
-        user = {username: username, password: generate_password_hash(password)}
-        users[user[username]] = user[password]
+        # user = {username: username, password: generate_password_hash(password)}
+        # users[user[username]] = user[password]
         return "Pomyślnie zarejestrowano!", 200
 
 
