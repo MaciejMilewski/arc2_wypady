@@ -1,19 +1,18 @@
 import os
 
 from flask import Flask, request
-# CORS do testowania lokalnie
-# from flask_cors import CORS, cross_origin
+from flask_cors import CORS, cross_origin
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
 
 app = Flask(__name__)
 #  - CORS do testowania lokalnie
-# CORS_ALLOW_ORIGIN="*,*"
-# CORS_EXPOSE_HEADERS="*,*"
-# CORS_ALLOW_HEADERS="content-type,*"
-# cors = CORS(app, origins=CORS_ALLOW_ORIGIN.split(","), allow_headers=CORS_ALLOW_HEADERS.split(",") , expose_headers= CORS_EXPOSE_HEADERS.split(","),   supports_credentials = True)
-# app.config['CORS_HEADERS'] = 'Content-Type'
+CORS_ALLOW_ORIGIN="*,*"
+CORS_EXPOSE_HEADERS="*,*"
+CORS_ALLOW_HEADERS="content-type,*"
+cors = CORS(app, origins=CORS_ALLOW_ORIGIN.split(","), allow_headers=CORS_ALLOW_HEADERS.split(",") , expose_headers= CORS_EXPOSE_HEADERS.split(","),   supports_credentials = True)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 auth = HTTPBasicAuth()
 datastore_client = datastore.Client()
@@ -22,7 +21,7 @@ users = {}
 
 
 @app.route('/register', methods=['POST'])
-# @cross_origin()
+@cross_origin()
 def register():
     print(request.args)
     username = request.json['email']
@@ -45,7 +44,7 @@ def register():
 
 
 @app.route('/login', methods=['POST'])
-# @cross_origin()
+@cross_origin()
 def login():
     username = request.json['email']
     password = request.json['password']
