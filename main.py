@@ -29,7 +29,7 @@ def register():
 
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
-    users = list(query.fetch())
+    users = dict(query.fetch())
     print(users)
 
     if username in users:
