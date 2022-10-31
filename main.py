@@ -22,7 +22,7 @@ users = {}
 
 
 @app.route('/register', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def register():
     print(request.args)
     username = request.json['email']
@@ -45,7 +45,7 @@ def register():
 
 
 @app.route('/login', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def login():
     username = request.json['email']
     password = request.json['password']
