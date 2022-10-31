@@ -26,20 +26,22 @@ def register():
     print(request.args)
     username = request.json['email']
     password = request.json['password']
+
     if username in users:
         return "There is a user with this email", 409
     else:
+        # Datastore -> save user
+        kind = "Users"
+        name = username
+        user_key = datastore_client.key(kind, name)
+        user = datastore.Entity(key=user_key)
+        user['email'] = username
+        user['password'] = generate_password_hash(password)
+        datastore_client.put(user)
+
         # Store locally username and password
         user = {username: username, password: generate_password_hash(password)}
         users[user[username]] = user[password]
-        # Store username in datastore
-        kind = "Users"
-        name = username
-        # user_key = datastore_client.key(kind,name)
-        # userKind = datastore.Entity(key=user_key)
-        # userKind["username"] = username
-        # Save the entity
-        # datastore_client.put(userKind)
         return "Pomyślnie zarejestrowano!", 200
 
 
