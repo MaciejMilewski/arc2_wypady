@@ -29,10 +29,12 @@ def register():
 
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
-    users = dict(query.fetch())
-    print(users)
+    user = list(query.fetch())[0]
+    print(user.key)
+    print("Key ^ User v")
+    print(user)
 
-    if username in users:
+    if user is not None:
         return "There is a user with this email", 409
     else:
         # Datastore -> save user
