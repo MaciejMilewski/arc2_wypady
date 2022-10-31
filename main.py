@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, request
 # CORS do testowania lokalnie
-from flask_cors import CORS, cross_origin
+# from flask_cors import CORS, cross_origin
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
