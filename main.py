@@ -27,8 +27,8 @@ def register():
     username = request.json['email']
     password = request.json['password']
 
-    query = datastore_client.query(kind="Users")
-    query.add_filter("email", "=", username)
+    query = datastore_client.query(kind='Users')
+    query.add_filter('email', '=', username)
     users = list(query.fetch())
     print(users)
 
