@@ -140,9 +140,9 @@ def addNewRestaurant():
             return 'Only png, jpg images are allowed!', 403
 
 
-@app.route('/addNewMenu', methods=['POST'])
+@app.route('/addNewFood', methods=['POST'])
 @auth.login_required
-def addNewMenu():
+def addNewFood():
     kind = "Food"
     name = request.form.get("name")
     price = request.form.get("price")
