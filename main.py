@@ -110,9 +110,7 @@ def addNewRestaurant():
     # print(request.json)
     name = request.form.get('name')
     image = request.files['file']
-    print(image)
-    print(name)
-    if image.getSize() > 500000:
+    if image.content_length > 500000:
         return "Image is too big", 403
     else:
         restaurant_key = datastore_client.key('Restaurant', name)
