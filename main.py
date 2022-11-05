@@ -5,6 +5,7 @@ from flask_cors import CORS, cross_origin
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
+from google.cloud import storage
 
 app = Flask(__name__)
 #  - CORS do testowania lokalnie
@@ -108,6 +109,9 @@ def addNewRestaurant():
     # print(request.json)
     name = request.json['name']
     image = request.json['file']
+    print(image)
+
+
     size = len(image.encode('utf-8'))
     if size > 500000:
         return "Image is too big", 403
@@ -117,9 +121,18 @@ def addNewRestaurant():
         if restaurant_entity is not None:
             return 'There is a restaurant with this name', 409
         else:
+
             new_restaurant = datastore.Entity(key=restaurant_key)
             new_restaurant['name'] = name
-            new_restaurant['image'] = image
+
+            # Storage bucket
+            # Create a Cloud Storage client.
+            # gcs = storage.Client()
+
+            # Get the bucket that the file will be uploaded to.
+            # bucket = gcs.get_bucket("staging.wypady.appspot.com")
+
+            # new_restaurant['image'] = image
             datastore_client.put(new_restaurant)
             return 'New restaurant added', 200
 
