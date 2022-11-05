@@ -6,6 +6,7 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
 from google.cloud import storage
+from urllib.request import urlopen
 
 app = Flask(__name__)
 #  - CORS do testowania lokalnie
@@ -109,19 +110,20 @@ def addNewRestaurant():
     # print(request.json)
     name = request.json['name']
     image = request.json['file']
-    print(image)
-
-    if image.getSize() > 500000:
-        return "Image is too big", 403
-    else:
-        restaurant_key = datastore_client.key('Restaurant', name)
-        restaurant_entity = datastore_client.get(restaurant_key)
-        if restaurant_entity is not None:
-            return 'There is a restaurant with this name', 409
-        else:
-
-            new_restaurant = datastore.Entity(key=restaurant_key)
-            new_restaurant['name'] = name
+    with urlopen(image) as response:
+        data = response.read()
+        print(data)
+    # if image.getSize() > 500000:
+    #     return "Image is too big", 403
+    # else:
+    #     restaurant_key = datastore_client.key('Restaurant', name)
+    #     restaurant_entity = datastore_client.get(restaurant_key)
+    #     if restaurant_entity is not None:
+    #         return 'There is a restaurant with this name', 409
+    #     else:
+    #
+    #         new_restaurant = datastore.Entity(key=restaurant_key)
+    #         new_restaurant['name'] = name
 
             # Storage bucket
             # Create a Cloud Storage client.
@@ -131,8 +133,8 @@ def addNewRestaurant():
             # bucket = gcs.get_bucket("staging.wypady.appspot.com")
 
             # new_restaurant['image'] = image
-            datastore_client.put(new_restaurant)
-            return 'New restaurant added', 200
+            # datastore_client.put(new_restaurant)
+            # return 'New restaurant added', 200
 
 
 if __name__ == "__main__":
