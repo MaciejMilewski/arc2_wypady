@@ -18,7 +18,16 @@ auth = HTTPBasicAuth()
 datastore_client = datastore.Client()
 
 
+# Search user in list
+def convertToDict(list):
+    it = iter(list)
+    res_dct = dict(zip(it, it))
+    return res_dct
 
+
+query = datastore_client.query(kind='Users')
+global users
+users = convertToDict(list(query.fetch()))
 
 @app.route('/register', methods=['POST'])
 @cross_origin()
@@ -26,14 +35,16 @@ def register():
     print(request.args)
     username = request.json['email']
     password = request.json['password']
-
+    if username in users:
+        print("Found user")
+        return "There is a user with this email [dict]", 409
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
     user = list(query.fetch())[0]
-    print(user.key)
-    print("Key ^ User v")
-    print(user['email'])
-    print(user['password'])
+    # print(user.key)
+    # print("Key ^ User v")
+    # print(user['email'])
+    # print(user['password'])
 
     if user is not None:
         return "There is a user with this email", 409
@@ -47,9 +58,6 @@ def register():
         user['password'] = generate_password_hash(password)
         datastore_client.put(user)
 
-        # Store locally username and password
-        # user = {username: username, password: generate_password_hash(password)}
-        # users[user[username]] = user[password]
         return "Pomyślnie zarejestrowano!", 200
 
 
@@ -77,13 +85,7 @@ def verify_password(username, password):
 @app.route('/')
 @auth.login_required
 def index():
-    kind = "Food"
-    name = "Spaghetti_1"
-    food_key = datastore_client.key(kind, name)
-    food = datastore.Entity(key=food_key)
-    food['description'] = "Firestore jest jak spaghetti"
-    food['name'] = "Spaghetti"
-    datastore_client.put(food)
+
     return "Wypadaj, {}!".format(auth.current_user())
 
 
