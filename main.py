@@ -107,7 +107,11 @@ def index():
 def addNewRestaurant():
     name = request.json['name']
     menu = request.json['menu']
-    image = request.files['file']
+    image = request.json['file']
+    blob = image.read()
+    size = len(blob)
+    print("Size = ")
+    print(size)
     print(name)
     print(menu)
     print(image)
