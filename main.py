@@ -113,28 +113,32 @@ def addNewRestaurant():
     if image.content_length > 500000:
         return "Image is too big", 403
     else:
-        restaurant_key = datastore_client.key('Restaurant', name)
-        restaurant_entity = datastore_client.get(restaurant_key)
-        if restaurant_entity is not None:
-            return 'There is a restaurant with this name', 409
+        if allowed_file(image.filename):
+            restaurant_key = datastore_client.key('Restaurant', name)
+            restaurant_entity = datastore_client.get(restaurant_key)
+            if restaurant_entity is not None:
+                return 'There is a restaurant with this name', 409
+            else:
+
+                new_restaurant = datastore.Entity(key=restaurant_key)
+                new_restaurant['name'] = name
+
+                # Storage bucket
+                # Create a Cloud Storage client.
+                gcs = storage.Client()
+                #
+                # Get the bucket that the file will be uploaded to.
+                bucket = gcs.get_bucket("staging.wypady.appspot.com")
+                blob = bucket.blob("restaurants/" + image.filename)
+                blob.upload_from_string(
+                    image.read(),
+                    content_type=image.content_type)
+                new_restaurant['image'] = image.filename
+                datastore_client.put(new_restaurant)
+                return 'New restaurant added', 200
         else:
+            return 'Only png, jpg images are allowed!', 403
 
-            new_restaurant = datastore.Entity(key=restaurant_key)
-            new_restaurant['name'] = name
-
-            # Storage bucket
-            # Create a Cloud Storage client.
-            gcs = storage.Client()
-            #
-            # Get the bucket that the file will be uploaded to.
-            bucket = gcs.get_bucket("staging.wypady.appspot.com")
-            blob = bucket.blob("restaurants/"+image.filename)
-            blob.upload_from_string(
-                image.read(),
-                content_type=image.content_type)
-            new_restaurant['image'] = image.filename
-            datastore_client.put(new_restaurant)
-            return 'New restaurant added', 200
 
 
 if __name__ == "__main__":
