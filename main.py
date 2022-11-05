@@ -108,8 +108,7 @@ def addNewRestaurant():
     name = request.json['name']
     menu = request.json['menu']
     image = request.json['file']
-    blob = image.read()
-    size = len(blob)
+    size = len(image.encode('utf-8'))
     print("Size = ")
     print(size)
     print(name)
