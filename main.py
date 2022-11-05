@@ -91,10 +91,11 @@ def verify_password(user, password):
         user_key = datastore_client.key('Users', user)
         user_entity = datastore_client.get(user_key)
         print("User Entity:")
-        print(user_entity)
-
         if user_entity is not None:
-            return user_entity
+            if check_password_hash(user_entity['password'], password):
+                return user_entity['email']
+            else:
+                return False
         else:
             return False
     else:
