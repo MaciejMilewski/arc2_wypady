@@ -80,6 +80,7 @@ def login():
 @auth.verify_password
 def verify_password(user, password):
     print(type(user))
+    print(user)
     print("Veryfication of password")
     if type(user) == datastore.Entity:
         if check_password_hash(user['password'], password):
@@ -89,10 +90,16 @@ def verify_password(user, password):
     elif type(user) == str:
         user_key = datastore_client.key('Users', user)
         user_entity = datastore.Entity(user_key)
+
+        user_kind = user_entity.kind
+        print("User kind:")
+        print(user_kind)
+        user_obj = user_entity.get()
         print("User Entity:")
-        print(user_entity)
-        if user_entity is not None:
-            return user_entity
+        print(user_obj)
+
+        if user_obj is not None:
+            return user_obj
         else:
             return False
     else:
