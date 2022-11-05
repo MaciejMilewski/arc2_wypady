@@ -18,13 +18,6 @@ auth = HTTPBasicAuth()
 datastore_client = datastore.Client()
 
 
-# Search user in list
-def search(list, user):
-    for i in range(len(list)):
-        if list[i] == user:
-            return True
-    return False
-
 @app.route('/register', methods=['POST'])
 @cross_origin()
 def register():
@@ -61,8 +54,7 @@ def login():
     password = request.json['password']
     users = datastore_client.query(kind='Users').fetch()
     print(users)
-
-    if search(users, username):
+    if username in users:
         # Sprawdź czy podane dane są prawidłowe
         user = verify_password(username, password, users)
         userObj = {"email": user, "password": password}
@@ -73,13 +65,9 @@ def login():
 
 @auth.verify_password
 def verify_password(username, password, users):
-    user = users.index(username)
     print("Veryfication of password")
-    print(user)
-    if user is not None:
-        return "User is not none", 200
-    # if username in users and check_password_hash(users.get(username), password):
-    #     return username
+    if username in users and check_password_hash(users.get(username), password):
+        return username
 
 
 
