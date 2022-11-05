@@ -109,12 +109,14 @@ def addNewRestaurant():
     menu = request.json['menu']
     image = request.json['file']
     size = len(image.encode('utf-8'))
-    print("Size = ")
-    print(size)
-    print(name)
-    print(menu)
-    print(image)
-    return image
+    if size > 500000:
+        return "Image is too big", 403
+    else:
+        print(size)
+        print(name)
+        print(menu)
+        print(image)
+        return "Image is ok", 200
 
 
 if __name__ == "__main__":
