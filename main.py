@@ -52,8 +52,9 @@ def register():
 def login():
     username = request.json['email']
     password = request.json['password']
-    users = datastore_client.query(kind='Users').fetch()
+    users = list(datastore_client.query(kind='Users').fetch())
     print(users)
+    print("Użytkownicy ^")
     if username in users:
         # Sprawdź czy podane dane są prawidłowe
         user = verify_password(username, password, users)
