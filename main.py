@@ -19,15 +19,11 @@ datastore_client = datastore.Client()
 
 
 # Search user in list
-def convertToDict(list):
-    it = iter(list)
-    res_dct = dict(zip(it, it))
-    return res_dct
-
-
-query = datastore_client.query(kind='Users')
-global users
-users = convertToDict(list(query.fetch()))
+def search(list, user):
+    for i in range(len(list)):
+        if list[i] == user:
+            return True
+    return False
 
 @app.route('/register', methods=['POST'])
 @cross_origin()
@@ -35,10 +31,6 @@ def register():
     print(request.args)
     username = request.json['email']
     password = request.json['password']
-    print(users)
-    if username in users:
-        print("Found user")
-        return "There is a user with this email [dict]", 409
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
     user = list(query.fetch())[0]
@@ -67,9 +59,12 @@ def register():
 def login():
     username = request.json['email']
     password = request.json['password']
-    if username in users:
+    users = datastore_client.query(kind='Users').fetch()
+    print(users)
+
+    if search(users, username):
         # Sprawdź czy podane dane są prawidłowe
-        user = verify_password(username, password)
+        user = verify_password(username, password, users)
         userObj = {"email": user, "password": password}
         return userObj
     else:
@@ -77,16 +72,20 @@ def login():
 
 
 @auth.verify_password
-def verify_password(username, password):
-    if username in users and check_password_hash(users.get(username), password):
-        return username
+def verify_password(username, password, users):
+    user = users.index(username)
+    print("Veryfication of password")
+    print(user)
+    if user is not None:
+        return "User is not none", 200
+    # if username in users and check_password_hash(users.get(username), password):
+    #     return username
 
 
 
 @app.route('/')
 @auth.login_required
 def index():
-
     return "Wypadaj, {}!".format(auth.current_user())
 
 
