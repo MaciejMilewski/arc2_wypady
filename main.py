@@ -112,7 +112,7 @@ def addNewRestaurant():
     if size > 500000:
         return "Image is too big", 403
     else:
-        restaurant_key = datastore_client.key('Restaurants', name)
+        restaurant_key = datastore_client.key('Restaurant', name)
         restaurant_entity = datastore_client.get(restaurant_key)
         if restaurant_entity is not None:
             return 'There is a restaurant with this name', 409
