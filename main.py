@@ -108,12 +108,11 @@ def index():
 @auth.login_required
 def addNewRestaurant():
     # print(request.json)
-    print(request)
     name = request.form.get('name')
     image = request.form.get('file')
     print(image)
     print(name)
-    return name, 200
+    return image, 200
     if image.getSize() > 500000:
         return "Image is too big", 403
     else:
