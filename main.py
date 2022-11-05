@@ -111,31 +111,28 @@ def addNewRestaurant():
     name = request.json['name']
     image = request.json['file']
     print(image)
-    with urlopen(image) as response:
-        data = response.read()
-        if data.getSize() > 500000:
-            return "Image is too big", 403
+    if image.size > 500000:
+        return "Image is too big", 403
+    else:
+        restaurant_key = datastore_client.key('Restaurant', name)
+        restaurant_entity = datastore_client.get(restaurant_key)
+        if restaurant_entity is not None:
+            return 'There is a restaurant with this name', 409
         else:
-            restaurant_key = datastore_client.key('Restaurant', name)
-            restaurant_entity = datastore_client.get(restaurant_key)
-            if restaurant_entity is not None:
-                return 'There is a restaurant with this name', 409
-            else:
 
-                new_restaurant = datastore.Entity(key=restaurant_key)
-                new_restaurant['name'] = name
+            new_restaurant = datastore.Entity(key=restaurant_key)
+            new_restaurant['name'] = name
 
-                # Storage bucket
-                # Create a Cloud Storage client.
-                gcs = storage.Client()
-                #
-                # Get the bucket that the file will be uploaded to.
-                bucket = gcs.get_bucket("staging.wypady.appspot.com")
+            # Storage bucket
+            # Create a Cloud Storage client.
+            gcs = storage.Client()
+            #
+            # Get the bucket that the file will be uploaded to.
+            bucket = gcs.get_bucket("staging.wypady.appspot.com")
 
-
-                new_restaurant['image'] = image
-                datastore_client.put(new_restaurant)
-                return 'New restaurant added', 200
+            new_restaurant['image'] = image.name
+            datastore_client.put(new_restaurant)
+            return 'New restaurant added', 200
 
 
 if __name__ == "__main__":
