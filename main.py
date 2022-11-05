@@ -105,6 +105,7 @@ def index():
 @app.route('/addNewRestaurant', methods=['POST'])
 @auth.login_required
 def addNewRestaurant():
+    print(request.json)
     name = request.json['name']
     menu = request.json['menu']
     image = request.json['file']
