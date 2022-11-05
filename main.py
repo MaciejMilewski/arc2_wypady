@@ -113,7 +113,7 @@ def addNewRestaurant():
     image = request.form['file']
     print(image)
     print(name)
-    return request.form, 200
+    return name, 200
     if image.getSize() > 500000:
         return "Image is too big", 403
     else:
