@@ -118,8 +118,8 @@ def addNewRestaurant():
             return 'There is a restaurant with this name', 409
         else:
             new_restaurant = datastore.Entity(key=restaurant_key)
-            restaurant_entity['name'] = name
-            restaurant_entity['image'] = image
+            new_restaurant['name'] = name
+            new_restaurant['image'] = image
             datastore_client.put(new_restaurant)
             return 'New restaurant added', 200
 
