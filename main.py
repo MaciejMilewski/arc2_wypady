@@ -35,6 +35,7 @@ def register():
     print(request.args)
     username = request.json['email']
     password = request.json['password']
+    print(users)
     if username in users:
         print("Found user")
         return "There is a user with this email [dict]", 409
