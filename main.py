@@ -18,16 +18,13 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 auth = HTTPBasicAuth()
 datastore_client = datastore.Client()
 
+# Image allowed extensions
+ALLOWED_EXTENSIONS = {'jpg', 'png'}
 
-def search_by_email(list_of_users, email):
-    for user in list_of_users:
-        print("Checking the user:")
-        print(user)
-        if user['email'] == email:
-            return user
-        else:
-            continue
-    return False
+
+def allowed_file(fname):
+    return '.' in fname and \
+           fname.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/register', methods=['POST'])
@@ -99,12 +96,22 @@ def verify_password(user, password):
         return False
 
 
-
-
 @app.route('/')
 @auth.login_required
 def index():
     return "Wypadaj, {}!".format(auth.current_user())
+
+
+@app.route('/addNewRestaurant', methods=['POST'])
+@auth.login_required
+def addNewRestaurant():
+    name = request.json['name']
+    menu = request.json['menu']
+    image = request.files['file']
+    print(name)
+    print(menu)
+    print(image)
+    return image
 
 
 if __name__ == "__main__":
