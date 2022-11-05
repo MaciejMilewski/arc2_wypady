@@ -80,10 +80,19 @@ def login():
 @auth.verify_password
 def verify_password(user, password):
     print("Veryfication of password")
-    if check_password_hash(user['password'], password):
-        return user
+    if type(user) == list:
+        if check_password_hash(user['password'], password):
+            return user
+        else:
+            return False
     else:
-        return False
+        user_key = datastore_client.key('Users', user)
+        user_obj = datastore_client.get(user_key)
+        print(user_obj)
+        if user_obj is not None:
+            return user_obj
+        else:
+            return False
 
 
 @app.route('/')
