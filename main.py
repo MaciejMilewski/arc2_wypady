@@ -62,12 +62,11 @@ def register():
 def login():
     username = request.json['email']
     password = request.json['password']
-    users = list(datastore_client.query(kind='Users').fetch())
-    print(users)
-    print("Użytkownicy ^")
-    user = search_by_email(users, username)
-    if user is not False:
-        user_verified = verify_password(user, password)
+
+    user_key = datastore_client.key('Users', username)
+    user_entity = datastore_client.get(user_key)
+    if user_entity is not None:
+        user_verified = verify_password(user_entity, password)
         if user_verified is not False:
             user_obj = {"email": user_verified['email'], "password": user_verified['password']}
             return user_obj
@@ -93,7 +92,7 @@ def verify_password(user, password):
         print("User Entity:")
         print(user_entity)
         if user_entity is not None:
-            return user_entity
+            return user_entity['email']
         else:
             return False
     else:
