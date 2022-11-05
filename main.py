@@ -140,6 +140,23 @@ def addNewRestaurant():
             return 'Only png, jpg images are allowed!', 403
 
 
+@app.route('/addNewMenu', methods=['POST'])
+@auth.login_required
+def addNewMenu():
+    kind = "Food"
+    name = request.form.get("name")
+    price = request.form.get("price")
+    description = request.form.get("description")
+
+    restaurantName = "Key(Restaurant,'"+request.form.get("restaurant")+"')"
+    restaurant_key = datastore_client.key(kind, name)
+    menu = datastore.Entity(key=restaurant_key)
+    menu['name'] = name
+    menu['description'] = description
+    menu['price'] = price
+    menu['restaurantKey'] = restaurantName
+    datastore_client.put(menu)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8848)))
