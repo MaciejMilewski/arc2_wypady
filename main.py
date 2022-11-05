@@ -79,6 +79,7 @@ def login():
 
 @auth.verify_password
 def verify_password(user, password):
+    print(type(user))
     print("Veryfication of password")
     if check_password_hash(user['password'], password):
         return user
