@@ -81,10 +81,24 @@ def login():
 def verify_password(user, password):
     print(type(user))
     print("Veryfication of password")
-    if check_password_hash(user['password'], password):
-        return user
+    if type(user) == datastore.Entity:
+        if check_password_hash(user['password'], password):
+            return user
+        else:
+            return False
+    elif type(user) == str:
+        user_key = datastore_client.key('Users', user)
+        user_obj = datastore.get(user_key)
+        print("User obj:")
+        print(user_obj)
+        if user_obj is not None:
+            return user_obj
+        else:
+            return False
     else:
         return False
+
+
 
 
 @app.route('/')
