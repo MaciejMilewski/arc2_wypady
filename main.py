@@ -109,10 +109,12 @@ def index():
 def addNewRestaurant():
     # print(request.json)
     print(request)
-    name = request.json['name']
-    image = request.json['file']
+    name = request.form['name']
+    image = request.form['file']
     print(image)
-    if image['size'] > 500000:
+    print(name)
+    return request.form, 200
+    if image.getSize() > 500000:
         return "Image is too big", 403
     else:
         restaurant_key = datastore_client.key('Restaurant', name)
