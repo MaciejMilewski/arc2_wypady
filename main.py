@@ -26,7 +26,8 @@ def search_by_email(list_of_users, email):
         if user['email'] == email:
             return user
         else:
-            return False
+            continue
+    return False
 
 
 @app.route('/register', methods=['POST'])
