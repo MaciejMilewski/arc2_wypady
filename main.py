@@ -8,14 +8,25 @@ from google.cloud import datastore
 
 app = Flask(__name__)
 #  - CORS do testowania lokalnie
-CORS_ALLOW_ORIGIN="*,*"
-CORS_EXPOSE_HEADERS="*,*"
-CORS_ALLOW_HEADERS="content-type,*"
-cors = CORS(app, origins=CORS_ALLOW_ORIGIN.split(","), allow_headers=CORS_ALLOW_HEADERS.split(",") , expose_headers= CORS_EXPOSE_HEADERS.split(","),   supports_credentials = True)
+CORS_ALLOW_ORIGIN = "*,*"
+CORS_EXPOSE_HEADERS = "*,*"
+CORS_ALLOW_HEADERS = "content-type,*"
+cors = CORS(app, origins=CORS_ALLOW_ORIGIN.split(","), allow_headers=CORS_ALLOW_HEADERS.split(","),
+            expose_headers=CORS_EXPOSE_HEADERS.split(","), supports_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 auth = HTTPBasicAuth()
 datastore_client = datastore.Client()
+
+
+def search_by_email(list_of_users, email):
+    for user in list_of_users:
+        print("Checking the user:")
+        print(user)
+        if user['email'] == email:
+            return user
+        else:
+            return False
 
 
 @app.route('/register', methods=['POST'])
@@ -55,21 +66,25 @@ def login():
     users = list(datastore_client.query(kind='Users').fetch())
     print(users)
     print("Użytkownicy ^")
-    if username in users:
-        # Sprawdź czy podane dane są prawidłowe
-        user = verify_password(username, password, users)
-        userObj = {"email": user, "password": password}
-        return userObj
+    user = search_by_email(users, username)
+    if user is not False:
+        user_verified = verify_password(user, password)
+        if user_verified is not False:
+            user_obj = {"email": user_verified['email'], "password": user_verified['password']}
+            return user_obj
+        else:
+            return "Password don't match", 403
     else:
         return "User not found", 404
 
 
 @auth.verify_password
-def verify_password(username, password, users):
+def verify_password(user, password):
     print("Veryfication of password")
-    if username in users and check_password_hash(users.get(username), password):
-        return username
-
+    if check_password_hash(user['password'], password):
+        return user
+    else:
+        return False
 
 
 @app.route('/')
