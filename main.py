@@ -109,7 +109,7 @@ def index():
 def addNewRestaurant():
     # print(request.json)
     name = request.form.get('name')
-    image = request.form.get('file')
+    image = request.files['file']
     print(image)
     print(name)
     return image, 200
