@@ -105,19 +105,22 @@ def index():
 @app.route('/addNewRestaurant', methods=['POST'])
 @auth.login_required
 def addNewRestaurant():
-    print(request.json)
+    # print(request.json)
     name = request.json['name']
-    menu = request.json['menu']
     image = request.json['file']
     size = len(image.encode('utf-8'))
     if size > 500000:
         return "Image is too big", 403
     else:
-        print(size)
-        print(name)
-        print(menu)
-        print(image)
-        return "Image is ok", 200
+        restaurant_key = datastore_client.key('Restaurants', name)
+        restaurant_entity = datastore_client.get(restaurant_key)
+        if restaurant_entity is not None:
+            return 'There is a restaurant with this name', 409
+        else:
+            restaurant_entity['name'] = name
+            restaurant_entity['image'] = image
+            datastore_client.put(restaurant_entity)
+            return 'New restaurant added', 200
 
 
 if __name__ == "__main__":
