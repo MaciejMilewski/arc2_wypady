@@ -108,6 +108,7 @@ def index():
 @auth.login_required
 def addNewRestaurant():
     # print(request.json)
+    print(request)
     name = request.json['name']
     image = request.json['file']
     print(image)
