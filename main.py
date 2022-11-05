@@ -128,8 +128,11 @@ def addNewRestaurant():
             #
             # Get the bucket that the file will be uploaded to.
             bucket = gcs.get_bucket("staging.wypady.appspot.com")
-
-            new_restaurant['image'] = image.name
+            blob = bucket.blob("restaurants/"+image.filename)
+            blob.upload_from_string(
+                image.read(),
+                content_type=image.content_type)
+            new_restaurant['image'] = image.filename
             datastore_client.put(new_restaurant)
             return 'New restaurant added', 200
 
