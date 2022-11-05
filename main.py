@@ -37,13 +37,11 @@ def register():
     password = request.json['password']
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
-    user = list(query.fetch())[0]
-    # print(user.key)
-    # print("Key ^ User v")
-    # print(user['email'])
-    # print(user['password'])
+    user = list(query.fetch())
+    print(user)
+    print(len(user))
 
-    if user is not None:
+    if len(user) != 0:
         return "There is a user with this email", 409
     else:
         # Datastore -> save user
