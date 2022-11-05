@@ -90,12 +90,11 @@ def verify_password(user, password):
     elif type(user) == str:
         user_key = datastore_client.key('Users', user)
         user_entity = datastore.Entity(user_key)
-        user_obj = user_entity.get(user)
         print("User Entity:")
-        print(user_obj)
+        print(user_entity)
 
-        if user_obj is not None:
-            return user_obj
+        if user_entity is not None:
+            return user_entity
         else:
             return False
     else:
