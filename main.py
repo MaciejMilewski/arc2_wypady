@@ -106,7 +106,7 @@ def index():
 
 @app.route('/addNewRestaurant', methods=['POST'])
 @auth.login_required
-def addNewRestaurant():
+def add_new_restaurant():
     # print(request.json)
     name = request.form.get('name')
     image = request.files['file']
@@ -142,20 +142,28 @@ def addNewRestaurant():
 
 @app.route('/addNewFood', methods=['POST'])
 @auth.login_required
-def addNewFood():
+def add_new_food():
     kind = "Food"
     name = request.form.get("name")
     price = request.form.get("price")
     description = request.form.get("description")
 
-    restaurantName = "Key(Restaurant,'"+request.form.get("restaurant")+"')"
+    # Key property
+    restaurant = request.form.get("restaurant")
+    restaurant_name_key = datastore_client.key("Restaurant", restaurant)
+
+    print("Restaurant name key:")
+    print(restaurant_name_key)
+
+    # Food entity
     restaurant_key = datastore_client.key(kind, name)
     menu = datastore.Entity(key=restaurant_key)
     menu['name'] = name
     menu['description'] = description
     menu['price'] = price
-    menu['restaurantKey'] = restaurantName
+    menu['restaurantKey'] = restaurant_name_key
     datastore_client.put(menu)
+    return 'New food added', 200
 
 
 if __name__ == "__main__":
