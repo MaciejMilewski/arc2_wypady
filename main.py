@@ -152,8 +152,7 @@ def add_new_food():
     restaurant = request.form.get("restaurant")
     restaurant_name_key = datastore_client.key("Restaurant", restaurant)
 
-    restaurant_entity = datastore.Entity(key=restaurant_name_key)
-
+    restaurant_entity = datastore_client.get(restaurant_name_key)
     print("Restaurant entity:")
     print(restaurant_entity)
     print("Restaurant name key:")
