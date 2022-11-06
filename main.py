@@ -157,16 +157,20 @@ def add_new_food():
     print(restaurant_entity)
     print("Restaurant name key:")
     print(restaurant_name_key)
+    if not restaurant_entity:
+        return "There is no restaurant", 404
+    else:
+        # Food entity
+        restaurant_key = datastore_client.key(kind, name)
+        menu = datastore.Entity(key=restaurant_key)
+        menu['name'] = name
+        menu['description'] = description
+        menu['price'] = price
+        menu['restaurantKey'] = restaurant_name_key
+        datastore_client.put(menu)
+        return 'New food added', 200
 
-    # Food entity
-    restaurant_key = datastore_client.key(kind, name)
-    menu = datastore.Entity(key=restaurant_key)
-    menu['name'] = name
-    menu['description'] = description
-    menu['price'] = price
-    menu['restaurantKey'] = restaurant_name_key
-    datastore_client.put(menu)
-    return 'New food added', 200
+
 
 
 if __name__ == "__main__":
