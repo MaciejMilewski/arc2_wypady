@@ -161,7 +161,8 @@ def add_new_food():
         return "There is no restaurant", 404
     else:
         # Food entity
-        restaurant_key = datastore_client.key(kind, name)
+        # restaurant_key = datastore_client.key(kind, name)
+        restaurant_key = datastore_client.key(kind)
         menu = datastore.Entity(key=restaurant_key)
         menu['name'] = name
         menu['description'] = description
