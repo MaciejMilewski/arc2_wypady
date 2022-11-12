@@ -32,14 +32,14 @@ def allowed_file(fname):
 @app.route('/register', methods=['POST'])
 @cross_origin()
 def register():
-    print(request.args)
+    # print(request.args)
     username = request.json['email']
     password = request.json['password']
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
     user = list(query.fetch())
-    print(user)
-    print(len(user))
+    # print(user)
+    # print(len(user))
 
     if len(user) != 0:
         return "There is a user with this email", 409
@@ -77,9 +77,9 @@ def login():
 
 @auth.verify_password
 def verify_password(user, password):
-    print(type(user))
-    print(user)
-    print("Veryfication of password")
+    # print(type(user))
+    # print(user)
+    # print("Veryfication of password")
     if type(user) == datastore.Entity:
         if check_password_hash(user['password'], password):
             return user
@@ -88,8 +88,8 @@ def verify_password(user, password):
     elif type(user) == str:
         user_key = datastore_client.key('Users', user)
         user_entity = datastore_client.get(user_key)
-        print("User Entity:")
-        print(user_entity)
+        # print("User Entity:")
+        # print(user_entity)
         if user_entity is not None:
             return user_entity['email']
         else:
@@ -153,10 +153,10 @@ def add_new_food():
     restaurant_name_key = datastore_client.key("Restaurant", restaurant)
 
     restaurant_entity = datastore_client.get(restaurant_name_key)
-    print("Restaurant entity:")
-    print(restaurant_entity)
-    print("Restaurant name key:")
-    print(restaurant_name_key)
+    # print("Restaurant entity:")
+    # print(restaurant_entity)
+    # print("Restaurant name key:")
+    # print(restaurant_name_key)
     if not restaurant_entity:
         return "There is no restaurant", 404
     else:
@@ -176,18 +176,21 @@ def add_new_food():
 @auth.login_required
 def get_food_by_name():
     food_prefix = request.form.get("name")
+    print("Food prefix = ", food_prefix)
 
     if food_prefix.isalpha() is False:
         return "Food prefix contains illegal characters", 400
     if len(food_prefix) < 1:
         return "Food name is too short", 400
     else:
-        query = datastore_client.query(kind="Food")
+        query = datastore_client.query(kind='Food')
         query.add_filter('name', '>=', str(food_prefix))
 
         last_letter_index = len(food_prefix)-1
         next_letter = food_prefix[last_letter_index]
         next_letter = bytes(next_letter, 'utf-8')
+
+        print("next_letter[0] = ", str(next_letter[0]))
 
         if str(next_letter[0]) == "z":
             new_last_letter = "z"
@@ -200,7 +203,9 @@ def get_food_by_name():
         new_prefix = food_prefix
         new_prefix[last_letter_index] = new_last_letter
 
-        query.add_filter('name', '<', str(new_prefix))
+        print("next_letter[0] = ", str(next_letter[0]))
+
+        query.add_filter("New prefix = ", new_prefix)
 
         result = list(query.fetch(limit=10))
         return result, 200
