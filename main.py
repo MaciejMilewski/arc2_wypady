@@ -191,18 +191,18 @@ def get_food_by_name():
         next_letter = food_prefix[last_letter_index]
         next_letter = bytes(next_letter, 'utf-8')
 
-        print("next_letter[0] = ", str(next_letter[0]))
+        print("next_letter[0] = ", next_letter.decode("utf-8"))
 
-        if str(next_letter[0]) == "z":
+        if next_letter.decode("utf-8") == "z":
             new_last_letter = "z"
-        elif str(next_letter[0]) == "Z":
+        elif next_letter.decode("utf-8") == "Z":
             new_last_letter = "Z"
         else:
             new_last_letter = bytes([next_letter[0] + 1])
-            new_last_letter = str(new_last_letter)
+            new_last_letter = new_last_letter.decode("utf-8")
 
         new_prefix = food_prefix
-        new_prefix[last_letter_index] = new_last_letter
+        new_prefix = new_prefix[:len(new_prefix)-1] + new_last_letter
 
         print("next_letter[0] = ", str(next_letter[0]))
 
