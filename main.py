@@ -177,10 +177,13 @@ def add_new_food():
 @auth.login_required
 def get_food_by_name():
     food_prefix = request.args.get("name")
-    size = request.args.get("size", 5)
     print("Food prefix = ", food_prefix)
-    if not isinstance(size, int):
+
+    try:
+        size = request.args.get("size", 5, type=int)
+    except ValueError:
         return "Size is invalid type", 400
+
     if int(size) > 100:
         return "Requested size is too large", 400
     if food_prefix is None:
