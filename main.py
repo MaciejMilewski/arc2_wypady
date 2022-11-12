@@ -208,10 +208,14 @@ def get_food_by_name():
         query.add_filter('name', '<', new_prefix)
         result = list(query.fetch(limit=10))
         print(result)
-        result = ' '.join(result)
-        print(result)
 
-        return result, 200
+        new_result = {}
+        food_list = []
+        for food_entity in result:
+            food_list.append(food_entity['name'])
+
+        new_result["foods"] = food_list
+        return new_result, 200
 
 
 if __name__ == "__main__":
