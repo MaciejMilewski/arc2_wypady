@@ -208,9 +208,12 @@ def get_food_by_name():
         query.add_filter('name', '<', new_prefix)
         result = list(query.fetch(limit=10))
         print("result = ", result)
-        result_json = json.dumps(result)
-        print("result json = ", result_json)
-        return 200
+        item = iter(result)
+
+        # Using the Python zip() function to convert the list to a dictionary
+        ds = dict(zip(item, item))
+        print(ds)
+        return ds, 200
 
 
 if __name__ == "__main__":
