@@ -204,10 +204,7 @@ def get_food_by_name():
         new_prefix = food_prefix
         new_prefix = new_prefix[:len(new_prefix)-1] + new_last_letter
 
-        print("next_letter[0] = ", str(next_letter[0]))
-
-        query.add_filter("New prefix = ", new_prefix)
-
+        query.add_filter('name', '<', new_prefix)
         result = list(query.fetch(limit=10))
         return result, 200
 
