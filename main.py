@@ -207,8 +207,10 @@ def get_food_by_name():
 
         query.add_filter('name', '<', new_prefix)
         result = list(query.fetch(limit=10))
+        print("result = ", result)
         result_json = json.dumps(result)
-        return result_json, 200
+        print("result json = ", result_json)
+        return 200
 
 
 if __name__ == "__main__":
