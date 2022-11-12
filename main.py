@@ -207,8 +207,9 @@ def get_food_by_name():
 
         query.add_filter('name', '<', new_prefix)
         result = list(query.fetch(limit=10))
-
+        print(result)
         result = ' '.join(result)
+        print(result)
 
         return result, 200
 
