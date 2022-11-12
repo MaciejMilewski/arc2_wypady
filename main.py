@@ -175,7 +175,7 @@ def add_new_food():
 @app.route('/getFoodByName', methods=['GET'])
 @auth.login_required
 def get_food_by_name():
-    food_prefix = request.form.get("name")
+    food_prefix = request.args.get("name")
     return food_prefix, 200
     # print("Food prefix = ", food_prefix)
     # if food_prefix is None:
