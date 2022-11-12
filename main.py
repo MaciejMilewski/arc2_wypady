@@ -6,6 +6,7 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
 from google.cloud import storage
+import json
 from urllib.request import urlopen
 
 app = Flask(__name__)
@@ -206,7 +207,8 @@ def get_food_by_name():
 
         query.add_filter('name', '<', new_prefix)
         result = list(query.fetch(limit=10))
-        return result, 200
+        result_json = json.dumps(result)
+        return result_json, 200
 
 
 if __name__ == "__main__":
