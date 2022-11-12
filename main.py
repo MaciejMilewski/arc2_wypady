@@ -176,41 +176,40 @@ def add_new_food():
 @auth.login_required
 def get_food_by_name():
     food_prefix = request.args.get("name")
-    return food_prefix, 200
-    # print("Food prefix = ", food_prefix)
-    # if food_prefix is None:
-    #     return "Prefix should be provided", 400
-    # if food_prefix.isalpha() is False:
-    #     return "Food prefix contains illegal characters", 400
-    # if len(food_prefix) < 1:
-    #     return "Food name is too short", 400
-    # else:
-    #     query = datastore_client.query(kind='Food')
-    #     query.add_filter('name', '>=', str(food_prefix))
-    #
-    #     last_letter_index = len(food_prefix)-1
-    #     next_letter = food_prefix[last_letter_index]
-    #     next_letter = bytes(next_letter, 'utf-8')
-    #
-    #     print("next_letter[0] = ", str(next_letter[0]))
-    #
-    #     if str(next_letter[0]) == "z":
-    #         new_last_letter = "z"
-    #     elif str(next_letter[0]) == "Z":
-    #         new_last_letter = "Z"
-    #     else:
-    #         new_last_letter = bytes([next_letter[0] + 1])
-    #         new_last_letter = str(new_last_letter)
-    #
-    #     new_prefix = food_prefix
-    #     new_prefix[last_letter_index] = new_last_letter
-    #
-    #     print("next_letter[0] = ", str(next_letter[0]))
-    #
-    #     query.add_filter("New prefix = ", new_prefix)
-    #
-    #     result = list(query.fetch(limit=10))
-    #     return result, 200
+    print("Food prefix = ", food_prefix)
+    if food_prefix is None:
+        return "Prefix should be provided", 400
+    if food_prefix.isalpha() is False:
+        return "Food prefix contains illegal characters", 400
+    if len(food_prefix) < 1:
+        return "Food name is too short", 400
+    else:
+        query = datastore_client.query(kind='Food')
+        query.add_filter('name', '>=', str(food_prefix))
+
+        last_letter_index = len(food_prefix)-1
+        next_letter = food_prefix[last_letter_index]
+        next_letter = bytes(next_letter, 'utf-8')
+
+        print("next_letter[0] = ", str(next_letter[0]))
+
+        if str(next_letter[0]) == "z":
+            new_last_letter = "z"
+        elif str(next_letter[0]) == "Z":
+            new_last_letter = "Z"
+        else:
+            new_last_letter = bytes([next_letter[0] + 1])
+            new_last_letter = str(new_last_letter)
+
+        new_prefix = food_prefix
+        new_prefix[last_letter_index] = new_last_letter
+
+        print("next_letter[0] = ", str(next_letter[0]))
+
+        query.add_filter("New prefix = ", new_prefix)
+
+        result = list(query.fetch(limit=10))
+        return result, 200
 
 
 if __name__ == "__main__":
