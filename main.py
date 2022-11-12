@@ -70,7 +70,7 @@ def login():
             user_obj = {"email": user_verified['email'], "password": user_verified['password']}
             return user_obj
         else:
-            return "Password don't match", 403
+            return "Password don't match", 400
     else:
         return "User not found", 404
 
@@ -111,7 +111,7 @@ def add_new_restaurant():
     name = request.form.get('name')
     image = request.files['file']
     if image.content_length > 500000:
-        return "Image is too big", 403
+        return "Image is too big", 400
     else:
         if allowed_file(image.filename):
             restaurant_key = datastore_client.key('Restaurant', name)
@@ -137,7 +137,7 @@ def add_new_restaurant():
                 datastore_client.put(new_restaurant)
                 return 'New restaurant added', 200
         else:
-            return 'Only png, jpg images are allowed!', 403
+            return 'Only png, jpg images are allowed!', 400
 
 
 @app.route('/addNewFood', methods=['POST'])
@@ -172,6 +172,38 @@ def add_new_food():
         return 'New food added', 200
 
 
+@app.route('/getFoodByName', methods=['GET'])
+@auth.login_required
+def get_food_by_name():
+    food_prefix = request.form.get("name")
+
+    if food_prefix.isalpha() is False:
+        return "Food prefix contains illegal characters", 400
+    if len(food_prefix) < 1:
+        return "Food name is too short", 400
+    else:
+        query = datastore_client.query(kind="Food")
+        query.add_filter('name', '>=', str(food_prefix))
+
+        last_letter_index = len(food_prefix)-1
+        next_letter = food_prefix[last_letter_index]
+        next_letter = bytes(next_letter, 'utf-8')
+
+        if str(next_letter[0]) == "z":
+            new_last_letter = "z"
+        elif str(next_letter[0]) == "Z":
+            new_last_letter = "Z"
+        else:
+            new_last_letter = bytes([next_letter[0] + 1])
+            new_last_letter = str(new_last_letter)
+
+        new_prefix = food_prefix
+        new_prefix[last_letter_index] = new_last_letter
+
+        query.add_filter('name', '<', str(new_prefix))
+
+        result = list(query.fetch(limit=10))
+        return result, 200
 
 
 if __name__ == "__main__":
