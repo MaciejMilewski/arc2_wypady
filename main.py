@@ -179,10 +179,7 @@ def get_food_by_name():
     food_prefix = request.args.get("name")
     print("Food prefix = ", food_prefix)
 
-    try:
-        size = request.args.get("size", 5, type=int)
-    except ValueError:
-        return "Size is invalid type", 400
+    size = request.args.get("size", 5, type=int)
 
     if int(size) > 100:
         return "Requested size is too large", 400
