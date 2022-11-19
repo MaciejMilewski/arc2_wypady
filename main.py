@@ -231,7 +231,7 @@ def is_image_food():
 
     # Get URI from form
     image = request.files['file']
-    if image is None:
+    if image.filename == '':
         return "Image not found", 400
     if image.content_length > 500000:
         return "Image is too big", 400
