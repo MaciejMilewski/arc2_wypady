@@ -1,5 +1,5 @@
 import os
-
+import io
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 from flask_httpauth import HTTPBasicAuth
@@ -230,19 +230,23 @@ def is_image_food():
     image = vision.Image()
 
     # Get URI from form
-    uri = request.form.get("uri")
+    image = request.files['file']
+    if image.content_length > 500000:
+        return "Image is too big", 400
+    else:
+        if allowed_file(image.filename):
+            print('Labels:' )
+            content = image.read()
+            imageVision = vision.Image(content=content)
+            response = client.label_detection(image=imageVision)
+            labels = response.label_annotations
+            for label in labels:
+                print(label)
+                print(label.description)
 
-    image.source.image_uri = uri
-
-    response = client.label_detection(image=image)
-    labels = response.label_annotations
-
-    print('Labels:' )
-    for label in labels:
-        print(label)
-        print(label.description)
-
-    return "True", 200
+            return "True", 200
+        else:
+            return 'Invalid format of a file', 400
 
 
 if __name__ == "__main__":
