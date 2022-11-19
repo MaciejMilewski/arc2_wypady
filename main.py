@@ -231,6 +231,8 @@ def is_image_food():
 
     # Get URI from form
     image = request.files['file']
+    if image is None:
+        return "Image not found", 400
     if image.content_length > 500000:
         return "Image is too big", 400
     else:
@@ -241,8 +243,8 @@ def is_image_food():
             labels = response.label_annotations
             for label in labels:
                 food = label.description.find('food')
-                foodC = label.description.find('Food')
-                if food != -1 or foodC != -1:
+                food_c = label.description.find('Food')
+                if food != -1 or food_c != -1:
                     return "True", 200
 
             return "False", 200
