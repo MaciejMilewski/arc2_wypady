@@ -6,8 +6,8 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
 from google.cloud import storage
-import json
-from urllib.request import urlopen
+# Import google cloud vision
+from google.cloud import vision
 
 app = Flask(__name__)
 #  - CORS do testowania lokalnie
@@ -216,6 +216,27 @@ def get_food_by_name():
 
         new_result["foods"] = food_list
         return new_result, 200
+
+
+@app.route('/isImageFood', methods=['POST'])
+@auth.login_required
+def is_image_food():
+    client = vision.ImageAnnotatorClient()
+    image = vision.Image()
+
+    # Get URI from form
+    uri = request.form.get("uri")
+
+    image.source.image_uri = uri
+
+    response = client.label_detection(image=image)
+    labels = response.label_annotations
+
+    print('Labels:' )
+    for label in labels:
+        print(label)
+
+    return True, 200
 
 
 if __name__ == "__main__":
