@@ -240,8 +240,9 @@ def is_image_food():
     print('Labels:' )
     for label in labels:
         print(label)
+        print(label.description)
 
-    return True, 200
+    return "True", 200
 
 
 if __name__ == "__main__":
