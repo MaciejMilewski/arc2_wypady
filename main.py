@@ -178,6 +178,11 @@ def add_new_food():
 def get_food_by_name():
     food_prefix = request.args.get("name")
     print("Food prefix = ", food_prefix)
+
+    size = request.args.get("size", 5, type=int)
+
+    if int(size) > 100:
+        return "Requested size is too large", 400
     if food_prefix is None:
         return "Prefix should be provided", 400
     if food_prefix.isalpha() is False:
@@ -206,7 +211,7 @@ def get_food_by_name():
         new_prefix = new_prefix[:len(new_prefix)-1] + new_last_letter
 
         query.add_filter('name', '<', new_prefix)
-        result = list(query.fetch(limit=10))
+        result = list(query.fetch(limit=size))
         print(result)
 
         new_result = {}
