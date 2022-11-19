@@ -235,16 +235,17 @@ def is_image_food():
         return "Image is too big", 400
     else:
         if allowed_file(image.filename):
-            print('Labels:' )
             content = image.read()
-            imageVision = vision.Image(content=content)
-            response = client.label_detection(image=imageVision)
+            image_vision = vision.Image(content=content)
+            response = client.label_detection(image=image_vision)
             labels = response.label_annotations
             for label in labels:
-                print(label)
-                print(label.description)
+                food = label.description.find('food')
+                foodC = label.description.find('Food')
+                if food != -1 or foodC != -1:
+                    return "True", 200
 
-            return "True", 200
+            return "False", 200
         else:
             return 'Invalid format of a file', 400
 
