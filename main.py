@@ -253,6 +253,17 @@ def is_image_food():
             print('violence: {}'.format(likelihood_name[safe.violence]))
             print('racy: {}'.format(likelihood_name[safe.racy]))
 
+            if likelihood_name[safe.adult] is not 'UNLIKELY' or likelihood_name[safe.adult] is not 'VERY_UNLIKELY':
+                return "Adult content", 400
+            if likelihood_name[safe.violence] is not 'UNLIKELY' or likelihood_name[safe.violence] is not 'VERY_UNLIKELY':
+                return "Violent content", 400
+            if likelihood_name[safe.medical] is not 'UNLIKELY' or likelihood_name[safe.medical] is not 'VERY_UNLIKELY':
+                return "Medical content", 400
+            if likelihood_name[safe.spoof] is not 'UNLIKELY' or likelihood_name[safe.spoof] is not 'VERY_UNLIKELY':
+                return "Fake content", 400
+            if likelihood_name[safe.racy] is not 'UNLIKELY' or likelihood_name[safe.racy] is not 'VERY_UNLIKELY':
+                return "Racy content", 400
+
             for label in labels:
                 food = label.description.find('food')
                 food_c = label.description.find('Food')
