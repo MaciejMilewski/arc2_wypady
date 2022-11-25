@@ -227,7 +227,6 @@ def get_food_by_name():
 @auth.login_required
 def is_image_food():
     client = vision.ImageAnnotatorClient()
-    image = vision.Image()
 
     # Get URI from form
     image = request.files['file']
@@ -239,8 +238,21 @@ def is_image_food():
         if allowed_file(image.filename):
             content = image.read()
             image_vision = vision.Image(content=content)
-            response = client.label_detection(image=image_vision)
-            labels = response.label_annotations
+            response_labels = client.label_detection(image=image_vision)
+            labels = response_labels.label_annotations
+
+            response_explicit = client.safe_search_detection(image=image)
+            safe = response_explicit.safe_search_annotation
+
+            likelihood_name = ('UNKNOWN', 'VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE',
+                               'LIKELY', 'VERY_LIKELY')
+
+            print('adult: {}'.format(likelihood_name[safe.adult]))
+            print('medical: {}'.format(likelihood_name[safe.medical]))
+            print('spoofed: {}'.format(likelihood_name[safe.spoof]))
+            print('violence: {}'.format(likelihood_name[safe.violence]))
+            print('racy: {}'.format(likelihood_name[safe.racy]))
+
             for label in labels:
                 food = label.description.find('food')
                 food_c = label.description.find('Food')
