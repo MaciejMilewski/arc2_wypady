@@ -241,7 +241,7 @@ def is_image_food():
             response_labels = client.label_detection(image=image_vision)
             labels = response_labels.label_annotations
 
-            response_explicit = client.safe_search_detection(image=image)
+            response_explicit = client.safe_search_detection(image=image_vision)
             safe = response_explicit.safe_search_annotation
 
             likelihood_name = ('UNKNOWN', 'VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE',
