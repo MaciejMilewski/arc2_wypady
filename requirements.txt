@@ -5,3 +5,4 @@ Flask-HTTPAuth==4.7.0
 flask-cors==3.0.10
 google-cloud-storage==2.5.0
 google-cloud-vision==3.1.4
+google-cloud-pubsub==2.13.11

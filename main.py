@@ -6,6 +6,7 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
 from google.cloud import storage
+from google.cloud import pubsub_v1
 # Import google cloud vision
 from google.cloud import vision
 
@@ -148,21 +149,27 @@ def add_new_food():
     name = request.form.get("name")
     price = request.form.get("price")
     description = request.form.get("description")
+    image = request.files['file']
+
+    # pub sub
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = 'projects/wypady/topics/isImageFood'
+
+    data = image
+    data = data.encode('utf-8')
+
+    future = publisher.publish(topic_path, data)
+    print(f'published message id {future.result()}')
 
     # Key property
     restaurant = request.form.get("restaurant")
     restaurant_name_key = datastore_client.key("Restaurant", restaurant)
 
     restaurant_entity = datastore_client.get(restaurant_name_key)
-    # print("Restaurant entity:")
-    # print(restaurant_entity)
-    # print("Restaurant name key:")
-    # print(restaurant_name_key)
+
     if not restaurant_entity:
         return "There is no restaurant", 404
     else:
-        # Food entity
-        # restaurant_key = datastore_client.key(kind, name)
         restaurant_key = datastore_client.key(kind)
         menu = datastore.Entity(key=restaurant_key)
         menu['name'] = name
