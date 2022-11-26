@@ -177,6 +177,19 @@ def add_new_food():
         menu['description'] = description
         menu['price'] = price
         menu['restaurantKey'] = restaurant_name_key
+
+        # Storage bucket
+        # Create a Cloud Storage client.
+        gcs = storage.Client()
+        #
+        # Get the bucket that the file will be uploaded to.
+        bucket = gcs.get_bucket("staging.wypady.appspot.com")
+        blob = bucket.blob("restaurants/" + image.filename)
+        blob.upload_from_string(
+            image.read(),
+            content_type=image.content_type)
+        menu['image'] = image.filename
+
         datastore_client.put(menu)
         return 'New food added', 200
 
