@@ -158,7 +158,7 @@ def add_new_food():
     data = image
     # data = data.encode('utf-8')
 
-    future = publisher.publish(topic_path, data)
+    future = publisher.publish(topic_path, data.read())
     print(f'published message id {future.result()}')
 
     # Key property
