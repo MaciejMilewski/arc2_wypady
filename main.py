@@ -41,6 +41,7 @@ def register():
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
     user = list(query.fetch())
+    datastore_client.delete(user[0])
     # print(user)
     # print(len(user))
 
@@ -158,7 +159,7 @@ def add_new_food():
     #
     # Get the bucket that the file will be uploaded to.
     bucket = gcs.get_bucket("staging.wypady.appspot.com")
-    blob = bucket.blob("restaurants/" + image.filename)
+    blob = bucket.blob("food/" + image.filename)
     blob.upload_from_string(
         image.read(),
         content_type=image.content_type)
