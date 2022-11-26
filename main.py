@@ -156,10 +156,9 @@ def add_new_food():
     publisher = pubsub_v1.PublisherClient()
     topic_path = 'projects/wypady/topics/isImageFood'
 
-    data = io.BytesIO()
-    base64.encode(image.read(), data)
+    data = image.read()
 
-    future = publisher.publish(topic_path, data.read())
+    future = publisher.publish(topic=topic_path, data=data)
     print(f'published message id {future.result()}')
 
     # Key property
