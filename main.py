@@ -156,7 +156,8 @@ def add_new_food():
     publisher = pubsub_v1.PublisherClient()
     topic_path = 'projects/wypady/topics/isImageFood'
 
-    data = image.read()
+    # data = image.read().encode("utf-8")
+    data = base64.b64encode(bytes(str(image.read()), 'utf-8'))
 
     future = publisher.publish(topic=topic_path, data=data)
     print(f'published message id {future.result()}')
