@@ -160,8 +160,10 @@ def add_new_food():
     # Get the bucket that the file will be uploaded to.
     bucket = gcs.get_bucket("staging.wypady.appspot.com")
     blob = bucket.blob("food/" + image.filename)
+
+    content = image.read()
     blob.upload_from_string(
-        image.read(),
+        content,
         content_type=image.content_type)
 
 
@@ -189,9 +191,9 @@ def add_new_food():
         publisher = pubsub_v1.PublisherClient()
         topic_path = 'projects/wypady/topics/isImageFood'
 
-        data = base64.b64encode(image.read())
+        data = base64.b64encode(content)
         print(data)
-        print(image.read())
+        print(content)
         future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
                                    description=description, name=name)
         print(f'published message id {future.result()}')
