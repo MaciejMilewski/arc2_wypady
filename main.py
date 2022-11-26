@@ -156,7 +156,7 @@ def add_new_food():
     topic_path = 'projects/wypady/topics/isImageFood'
 
     data = image
-    data = data.encode('utf-8')
+    # data = data.encode('utf-8')
 
     future = publisher.publish(topic_path, data)
     print(f'published message id {future.result()}')
