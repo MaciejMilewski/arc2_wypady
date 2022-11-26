@@ -1,3 +1,4 @@
+import base64
 import os
 import io
 from flask import Flask, request
@@ -155,8 +156,8 @@ def add_new_food():
     publisher = pubsub_v1.PublisherClient()
     topic_path = 'projects/wypady/topics/isImageFood'
 
-    data = image
-    # data = data.encode('utf-8')
+    data = io.BytesIO()
+    base64.encode(image.read(), data)
 
     future = publisher.publish(topic_path, data.read())
     print(f'published message id {future.result()}')
