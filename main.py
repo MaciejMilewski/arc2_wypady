@@ -188,7 +188,6 @@ def add_new_food():
         menu['price'] = price
         menu['restaurantKey'] = restaurant_name_key
         menu['image'] = image.filename
-        print(menu.key)
         datastore_client.put(menu)
         return 'New food added', 200
 
