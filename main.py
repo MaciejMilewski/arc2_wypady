@@ -163,14 +163,7 @@ def add_new_food():
         image.read(),
         content_type=image.content_type)
 
-    # pub sub
-    publisher = pubsub_v1.PublisherClient()
-    topic_path = 'projects/wypady/topics/isImageFood'
 
-    data = base64.b64encode(bytes(str(image.read()), 'utf-8'))
-
-    future = publisher.publish(topic=topic_path, data=data, filename=image.filename)
-    print(f'published message id {future.result()}')
 
     # Key property
     restaurant = request.form.get("restaurant")
@@ -181,6 +174,7 @@ def add_new_food():
     if not restaurant_entity:
         return "There is no restaurant", 404
     else:
+        # Datastore
         restaurant_key = datastore_client.key(kind)
         menu = datastore.Entity(key=restaurant_key)
         menu['name'] = name
@@ -189,6 +183,16 @@ def add_new_food():
         menu['restaurantKey'] = restaurant_name_key
         menu['image'] = image.filename
         datastore_client.put(menu)
+
+        # pub sub
+        publisher = pubsub_v1.PublisherClient()
+        topic_path = 'projects/wypady/topics/isImageFood'
+
+        data = base64.b64encode(bytes(str(image.read()), 'utf-8'))
+
+        future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
+                                   description=description, name=name)
+        print(f'published message id {future.result()}')
         return 'New food added', 200
 
 
