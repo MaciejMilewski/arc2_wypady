@@ -153,51 +153,48 @@ def add_new_food():
     description = request.form.get("description")
     image = request.files['file']
 
-    # Storage bucket
-    # Create a Cloud Storage client.
-    gcs = storage.Client()
-    #
-    # Get the bucket that the file will be uploaded to.
-    bucket = gcs.get_bucket("staging.wypady.appspot.com")
-    blob = bucket.blob("food/" + image.filename)
-
-    content = image.read()
-    blob.upload_from_string(
-        content,
-        content_type=image.content_type)
-
-
-
-    # Key property
-    restaurant = request.form.get("restaurant")
-    restaurant_name_key = datastore_client.key("Restaurant", restaurant)
-
-    restaurant_entity = datastore_client.get(restaurant_name_key)
-
-    if not restaurant_entity:
-        return "There is no restaurant", 404
+    if image.content_length > 500000:
+        return "Image is too big", 400
     else:
-        # Datastore
-        restaurant_key = datastore_client.key(kind)
-        menu = datastore.Entity(key=restaurant_key)
-        menu['name'] = name
-        menu['description'] = description
-        menu['price'] = price
-        menu['restaurantKey'] = restaurant_name_key
-        menu['image'] = image.filename
-        datastore_client.put(menu)
+        if allowed_file(image.filename):
 
-        # pub sub
-        publisher = pubsub_v1.PublisherClient()
-        topic_path = 'projects/wypady/topics/isImageFood'
+            # Store image file in Google Cloud Storage
+            gcs = storage.Client()
+            bucket = gcs.get_bucket("staging.wypady.appspot.com")
+            blob = bucket.blob("food/" + image.filename)
 
-        data = base64.b64encode(content)
-        print(data)
-        print(content)
-        future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
-                                   description=description, name=name)
-        print(f'published message id {future.result()}')
-        return 'New food added', 200
+            content = image.read()
+            blob.upload_from_string(content, content_type=image.content_type)
+
+            # Get restaurant entity from Datastore
+            restaurant = request.form.get("restaurant")
+            restaurant_name_key = datastore_client.key("Restaurant", restaurant)
+            restaurant_entity = datastore_client.get(restaurant_name_key)
+
+            if not restaurant_entity:
+                return "There is no restaurant", 404
+            else:
+                # Food to Datastore
+                restaurant_key = datastore_client.key(kind)
+                menu = datastore.Entity(key=restaurant_key)
+                menu['name'] = name
+                menu['description'] = description
+                menu['price'] = price
+                menu['restaurantKey'] = restaurant_name_key
+                menu['image'] = image.filename
+                datastore_client.put(menu)
+
+                # Pub/Sub to check if food image is acceptable
+                publisher = pubsub_v1.PublisherClient()
+                topic_path = 'projects/wypady/topics/isImageFood'
+
+                data = base64.b64encode(content)
+                future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
+                                           description=description, name=name)
+                print(f'published message id {future.result()}')
+                return 'New food added', 200
+        else:
+            return 'Only png, jpg images are allowed!', 400
 
 
 @app.route('/getFoodByName', methods=['GET'])
