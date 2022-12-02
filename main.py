@@ -174,7 +174,7 @@ def add_new_food():
             if not restaurant_entity:
                 return "There is no restaurant", 404
             else:
-                # Food to Datastore
+                # Save Food entity to Datastore
                 restaurant_key = datastore_client.key(kind)
                 menu = datastore.Entity(key=restaurant_key)
                 menu['name'] = name
@@ -184,14 +184,16 @@ def add_new_food():
                 menu['image'] = image.filename
                 datastore_client.put(menu)
 
-                # Pub/Sub to check if food image is acceptable
-                publisher = pubsub_v1.PublisherClient()
-                topic_path = 'projects/wypady/topics/isImageFood'
+                # # Pub/Sub to check if food image is acceptable (image contains food + no forbidden content)
+                # publisher = pubsub_v1.PublisherClient()
+                # topic_path = 'projects/wypady/topics/isImageFood'
+                #
+                # # 29.11.2022 Only filename, don't send image
+                # data = base64.b64encode(b'')
+                # future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
+                #                            description=description, name=name)
+                # print(f'published message id {future.result()}')
 
-                data = base64.b64encode(content)
-                future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
-                                           description=description, name=name)
-                print(f'published message id {future.result()}')
                 return 'New food added', 200
         else:
             return 'Only png, jpg images are allowed!', 400
