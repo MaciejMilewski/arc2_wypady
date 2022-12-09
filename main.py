@@ -184,15 +184,14 @@ def add_new_food():
                 menu['image'] = image.filename
                 datastore_client.put(menu)
 
-                # # Pub/Sub to check if food image is acceptable (image contains food + no forbidden content)
-                # publisher = pubsub_v1.PublisherClient()
-                # topic_path = 'projects/wypady/topics/isImageFood'
-                #
-                # # 29.11.2022 Only filename, don't send image
-                # data = base64.b64encode(b'')
-                # future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
-                #                            description=description, name=name)
-                # print(f'published message id {future.result()}')
+                # Pub/Sub to check if food image is acceptable (image contains food + no forbidden content)
+                publisher = pubsub_v1.PublisherClient()
+                topic_path = 'projects/wypady/topics/isImageFood'
+
+                data = base64.b64encode(b'')
+                future = publisher.publish(topic=topic_path, data=data, filename=image.filename,
+                                           description=description, name=name)
+                print(f'published message id {future.result()}')
 
                 return 'New food added', 200
         else:
@@ -299,6 +298,27 @@ def is_image_food():
             return "False", 200
         else:
             return 'Invalid format of a file', 400
+
+
+def callback(message):
+    print(f'Received message: {message}')
+    print(f'Data: {message.data}')
+    message.ack()
+
+
+# Subscribe to projects/wypady/subscriptions/uploadMenuFromFile-sub
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+print(f'Listining for messages on {subscription_path}')
+
+
+with subscriber:
+    try:
+        streaming_pull_future.result()
+    except TimeoutError:
+        streaming_pull_future.cancel()
+        streaming_pull_future.result()
 
 
 if __name__ == "__main__":
