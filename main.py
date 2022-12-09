@@ -303,6 +303,7 @@ def is_image_food():
 def callback(message):
     print(f'Received message: {message}')
     print(f'Data: {message.data}')
+    print(f'Filename: {message.filename}')
     message.ack()
 
 
