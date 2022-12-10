@@ -303,9 +303,13 @@ def is_image_food():
 
 def callback(message):
     # print(f'Received message: {message}')
-    print(f'Data: {message.data}')
-    print(json.loads(message.data))
-    print(message.data.decode('utf-8'))
+    menuObject = json.loads(message.data)
+    for item in menuObject.items():
+        print(item['name'])
+        print(item['price'])
+        print(item['description'])
+        print(item)
+
     message.ack()
 
 
