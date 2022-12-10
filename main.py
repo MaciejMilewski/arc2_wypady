@@ -304,7 +304,8 @@ def is_image_food():
 def callback(message):
     # print(f'Received message: {message}')
     print(f'Data: {message.data}')
-    print(json.loads(message.data).decode('utf-8'))
+    print(json.loads(message.data))
+    print(message.data.decode('utf-8'))
     message.ack()
 
 
