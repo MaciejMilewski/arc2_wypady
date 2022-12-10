@@ -9,6 +9,7 @@ from google.cloud import datastore
 from google.cloud import storage
 from google.cloud import pubsub_v1
 # Import google cloud vision
+import json
 from google.cloud import vision
 
 app = Flask(__name__)
@@ -301,14 +302,15 @@ def is_image_food():
 
 
 def callback(message):
-    print(f'Received message: {message}')
+    # print(f'Received message: {message}')
     print(f'Data: {message.data}')
-    print(f'Filename: {message.filename}')
+    print(json.loads(message.data).decode('utf-8'))
     message.ack()
 
 
 # Subscribe to projects/wypady/subscriptions/uploadMenuFromFile-sub
 subscriber = pubsub_v1.SubscriberClient()
+# projects/wypady/subscriptions/uploadMenuFromFile-sub
 subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
 streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
 print(f'Listining for messages on {subscription_path}')
