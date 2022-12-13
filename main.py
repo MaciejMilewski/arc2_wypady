@@ -334,8 +334,8 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
 
 
 subscriber = pubsub_v1.SubscriberClient()
-# subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
-subscription_path = subscriber.subscription_path("wypady", "projects/wypady/subscriptions/uploadMenuFromFile-sub")
+subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
+# subscription_path = subscriber.subscription_path("wypady", "projects/wypady/subscriptions/uploadMenuFromFile-sub")
 streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
 print(f'Listining for messages on {subscription_path}')
 
