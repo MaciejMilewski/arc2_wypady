@@ -354,18 +354,18 @@ def add_menu_from_csv():
         add_food_to_restaurant_func(item, restaurant_name_key)
 
 
-subscriber = pubsub_v1.SubscriberClient()
-subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
-streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-print(f'Listining for messages on {subscription_path}')
-
-
-with subscriber:
-    try:
-        streaming_pull_future.result(timeout=timeout)
-    except TimeoutError:
-        streaming_pull_future.cancel()
-        streaming_pull_future.result()
+# subscriber = pubsub_v1.SubscriberClient()
+# subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
+# streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+# print(f'Listining for messages on {subscription_path}')
+#
+#
+# with subscriber:
+#     try:
+#         streaming_pull_future.result(timeout=timeout)
+#     except TimeoutError:
+#         streaming_pull_future.cancel()
+#         streaming_pull_future.result()
 
 
 if __name__ == "__main__":
