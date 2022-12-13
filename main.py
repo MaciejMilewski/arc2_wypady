@@ -333,9 +333,29 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     message.ack()
 
 
+@app.route('/addMenuFromCSV', methods=['POST'])
+def add_menu_from_csv():
+    envelope = json.loads(request.data.decode('utf-8'))
+    menu_object = json.loads(base64.b64decode(envelope['message']['data']))
+
+    print(f'menu object {menu_object}')
+
+    restaurant_name = menu_object["restaurant"][0:-4]
+    print(f'restaurant {restaurant_name}')
+
+    for item in menu_object["menu"]:
+        restaurant_key = datastore_client.key('Restaurant', restaurant_name)
+        restaurant_entity = datastore_client.get(restaurant_key)
+        if restaurant_entity is None:
+            new_restaurant = datastore.Entity(key=restaurant_key)
+            new_restaurant['name'] = restaurant_name
+            datastore_client.put(new_restaurant)
+        restaurant_name_key = datastore_client.key("Restaurant", restaurant_name)
+        add_food_to_restaurant_func(item, restaurant_name_key)
+
+
 subscriber = pubsub_v1.SubscriberClient()
 subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
-# subscription_path = subscriber.subscription_path("wypady", "projects/wypady/subscriptions/uploadMenuFromFile-sub")
 streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
 print(f'Listining for messages on {subscription_path}')
 
