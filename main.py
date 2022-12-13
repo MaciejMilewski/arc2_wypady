@@ -11,6 +11,7 @@ from google.cloud import pubsub_v1
 # Import google cloud vision
 import json
 from google.cloud import vision
+from concurrent.futures import TimeoutError
 
 app = Flask(__name__)
 #  - CORS do testowania lokalnie
@@ -26,6 +27,8 @@ datastore_client = datastore.Client()
 
 # Image allowed extensions
 ALLOWED_EXTENSIONS = {'jpg', 'png'}
+
+timeout = 5.0
 
 
 def allowed_file(fname):
@@ -300,8 +303,8 @@ def is_image_food():
         else:
             return 'Invalid format of a file', 400
 
+
 def add_food_to_restaurant_func(item, restaurant_name_key):
-    # Save Food entity to Datastore
     restaurant_key = datastore_client.key("Food")
 
     menu = datastore.Entity(key=restaurant_key)
@@ -311,11 +314,12 @@ def add_food_to_restaurant_func(item, restaurant_name_key):
     menu['restaurantKey'] = restaurant_name_key
     datastore_client.put(menu)
 
-def callback(message):
-    # print(f'Received message: {message}')
+
+def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     menu_object = json.loads(message.data)
     restaurant_name = menu_object["restaurant"][0:-4]
     print(f'restaurant {restaurant_name}')
+
     for item in menu_object["menu"]:
         restaurant_key = datastore_client.key('Restaurant', restaurant_name)
         restaurant_entity = datastore_client.get(restaurant_key)
@@ -325,20 +329,20 @@ def callback(message):
             datastore_client.put(new_restaurant)
         restaurant_name_key = datastore_client.key("Restaurant", restaurant_name)
         add_food_to_restaurant_func(item, restaurant_name_key)
+
     message.ack()
 
 
-# Subscribe to projects/wypady/subscriptions/uploadMenuFromFile-sub
 subscriber = pubsub_v1.SubscriberClient()
-# projects/wypady/subscriptions/uploadMenuFromFile-sub
-subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
+# subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
+subscription_path = subscriber.subscription_path("wypady", "projects/wypady/subscriptions/uploadMenuFromFile-sub")
 streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
 print(f'Listining for messages on {subscription_path}')
 
 
 with subscriber:
     try:
-        streaming_pull_future.result()
+        streaming_pull_future.result(timeout=timeout)
     except TimeoutError:
         streaming_pull_future.cancel()
         streaming_pull_future.result()
