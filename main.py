@@ -353,6 +353,8 @@ def add_menu_from_csv():
         restaurant_name_key = datastore_client.key("Restaurant", restaurant_name)
         add_food_to_restaurant_func(item, restaurant_name_key)
 
+    return 'OK', 200
+
 
 # subscriber = pubsub_v1.SubscriberClient()
 # subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
