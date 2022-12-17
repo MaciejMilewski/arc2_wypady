@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from google.cloud import datastore
 from google.cloud import storage
 from google.cloud import pubsub_v1
+from google.cloud import exceptions
 # Import google cloud vision
 import json
 from google.cloud import vision
@@ -222,7 +223,7 @@ def get_food_by_name():
         query = datastore_client.query(kind='Food')
         query.add_filter('name', '>=', str(food_prefix))
 
-        last_letter_index = len(food_prefix)-1
+        last_letter_index = len(food_prefix) - 1
         next_letter = food_prefix[last_letter_index]
         next_letter = bytes(next_letter, 'utf-8')
 
@@ -237,7 +238,7 @@ def get_food_by_name():
             new_last_letter = new_last_letter.decode("utf-8")
 
         new_prefix = food_prefix
-        new_prefix = new_prefix[:len(new_prefix)-1] + new_last_letter
+        new_prefix = new_prefix[:len(new_prefix) - 1] + new_last_letter
 
         query.add_filter('name', '<', new_prefix)
         result = list(query.fetch(limit=size))
@@ -315,24 +316,6 @@ def add_food_to_restaurant_func(item, restaurant_name_key):
     datastore_client.put(menu)
 
 
-def callback(message: pubsub_v1.subscriber.message.Message) -> None:
-    menu_object = json.loads(message.data)
-    restaurant_name = menu_object["restaurant"][0:-4]
-    print(f'restaurant {restaurant_name}')
-
-    for item in menu_object["menu"]:
-        restaurant_key = datastore_client.key('Restaurant', restaurant_name)
-        restaurant_entity = datastore_client.get(restaurant_key)
-        if restaurant_entity is None:
-            new_restaurant = datastore.Entity(key=restaurant_key)
-            new_restaurant['name'] = restaurant_name
-            datastore_client.put(new_restaurant)
-        restaurant_name_key = datastore_client.key("Restaurant", restaurant_name)
-        add_food_to_restaurant_func(item, restaurant_name_key)
-
-    message.ack()
-
-
 @app.route('/addMenuFromCSV', methods=['POST'])
 def add_menu_from_csv():
     envelope = json.loads(request.data.decode('utf-8'))
@@ -356,18 +339,95 @@ def add_menu_from_csv():
     return 'OK', 200
 
 
-# subscriber = pubsub_v1.SubscriberClient()
-# subscription_path = "projects/wypady/subscriptions/uploadMenuFromFile-sub"
-# streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-# print(f'Listining for messages on {subscription_path}')
-#
-#
-# with subscriber:
-#     try:
-#         streaming_pull_future.result(timeout=timeout)
-#     except TimeoutError:
-#         streaming_pull_future.cancel()
-#         streaming_pull_future.result()
+def restaurant_exists(restaurant_name):
+    restaurant_key = datastore_client.key('Restaurant', restaurant_name)
+    restaurant_entity = datastore_client.get(restaurant_key)
+    if restaurant_entity is None:
+        return False
+    return True
+
+
+def restaurant_likes_update(restaurant_name, value):
+    kind = "LikesCounter"
+    like_counter_key = datastore_client.key(kind)
+    like_counter_entity = datastore.Entity(like_counter_key)
+    like_counter_entity["restaurantName"] = restaurant_name
+    like_counter_entity["restaurantName"] = restaurant_name
+
+    if value == -1:
+        like_counter_entity["dislikes"] -= 1
+    elif value == 1:
+        like_counter_entity["likes"] += 1
+
+    like_counter_entity.update()
+
+
+@app.route('/likeRestaurant', methods=['POST'])
+@auth.login_required
+def user_likes_restaurant():
+    restaurant_name = request.form.get("name")
+    user = auth.current_user()
+
+    with datastore_client.transaction():
+        try:
+            if restaurant_exists(restaurant_name):
+                kind = "Likes"
+                like_key = datastore_client.key(kind)
+                like_entity = datastore.Entity(like_key)
+                like_entity["username"] = user
+                like_entity["restaurantName"] = restaurant_name
+                datastore_client.put(like_entity)
+                restaurant_likes_update(restaurant_name, 1)
+        except exceptions.Conflict:
+            return 'Conflict - user likes restaurant', 400
+
+    return 'OK', 200
+
+
+@app.route('/dislikeRestaurant', methods=['POST'])
+@auth.login_required
+def user_dislikes_restaurant():
+    restaurant_name = request.form.get("name")
+    user = auth.current_user()
+
+    with datastore_client.transaction():
+        try:
+            if restaurant_exists(restaurant_name):
+                kind = "Dislikes"
+                like_key = datastore_client.key(kind)
+                like_entity = datastore.Entity(like_key)
+                like_entity["username"] = user
+                like_entity["restaurantName"] = restaurant_name
+                datastore_client.put(like_entity)
+                restaurant_likes_update(restaurant_name, -1)
+        except exceptions.Conflict:
+            return 'Conflict - user dislikes restaurant', 400
+
+    return 'OK', 200
+
+
+@app.route('/restaurantLikes', methods=['GET'])
+@auth.login_required
+def get_restaurant_likes_counter():
+    restaurant_name = request.args.get("name")
+
+    kind = "LikesCounter"
+    query = datastore_client.query(kind=kind)
+    query.add_filter('restaurantName', '==', restaurant_name)
+    result = list(query.fetch())
+
+    if len(result) == 0:
+        return "Restaurant not found in likesCounter", 404
+
+    restaurant_counter = []
+    for entity in result:
+        restaurant_counter.append({
+            "restaurantName": entity["restaurantName"],
+            "likes": entity["likes"],
+            "dislikes": entity["dislikes"]
+        })
+
+    return restaurant_counter, 200
 
 
 if __name__ == "__main__":
