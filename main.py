@@ -40,15 +40,11 @@ def allowed_file(fname):
 @app.route('/register', methods=['POST'])
 @cross_origin()
 def register():
-    # print(request.args)
     username = request.json['email']
     password = request.json['password']
     query = datastore_client.query(kind='Users')
     query.add_filter('email', '=', username)
     user = list(query.fetch())
-    datastore_client.delete(user[0])
-    # print(user)
-    # print(len(user))
 
     if len(user) != 0:
         return "There is a user with this email", 409
