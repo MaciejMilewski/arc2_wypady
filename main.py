@@ -347,47 +347,6 @@ def restaurant_exists(restaurant_name):
     return True
 
 
-def restaurant_likes_update(restaurant_name, value):
-    kind = "LikesCounter"
-    like_counter_key = datastore_client.key(kind, restaurant_name)
-    like_counter_entity = datastore_client.get(like_counter_key)
-
-    if like_counter_entity is None:
-        counter = datastore.Entity(key=like_counter_key)
-
-        counter["restaurantName"] = restaurant_name
-
-        print("New LikeCounterEntity: ", counter)
-
-        if value == -1:
-            counter['dislikes'] = 1
-            counter['likes'] = 0
-        elif value == 1:
-            counter['likes'] = 1
-            counter['dislikes'] = 0
-
-        datastore_client.put(counter)
-    else:
-        like_counter_entity["restaurantName"] = restaurant_name
-
-        print("Old LikeCounterEntity: ", like_counter_entity)
-
-        if value == -1:
-            dislike_value = int(like_counter_entity['dislikes'])
-            print("dislike_value: ", dislike_value)
-            new_dislikes_value = dislike_value + 1
-            print("new_dislikes_value: ", new_dislikes_value)
-            like_counter_entity['dislikes'] = new_dislikes_value
-        elif value == 1:
-            like_value = int(like_counter_entity['likes'])
-            print("like_value: ", like_value)
-            new_likes_value = like_value + 1
-            print("new_likes_value: ", new_likes_value)
-            like_counter_entity['likes'] = new_likes_value
-
-        datastore_client.put(like_counter_entity)
-
-
 @app.route('/likeRestaurant', methods=['POST'])
 @auth.login_required
 def user_likes_restaurant():
@@ -397,22 +356,15 @@ def user_likes_restaurant():
     with datastore_client.transaction():
         try:
             if restaurant_exists(restaurant_name):
-                # kind = "Likes"
-                # query = datastore_client.query(kind=kind)
-                # query.add_filter('restaurantName', '==', restaurant_name)
-                # query.add_filter('username', '==', user)
-                # result = list(query.fetch())
-                # if len(result) != 0:
-                #     return 'Already liked', 400
 
                 kind = "Likes"
                 like_key = datastore_client.key(kind, restaurant_name + "_" + user)
                 like_entity = datastore.Entity(like_key)
+
                 like_entity["username"] = user
                 like_entity["restaurantName"] = restaurant_name
                 like_entity["value"] = 1
                 datastore_client.put(like_entity)
-                restaurant_likes_update(restaurant_name, 1)
         except exceptions.Conflict:
             return 'Conflict - user likes restaurant', 400
 
@@ -428,14 +380,6 @@ def user_dislikes_restaurant():
     with datastore_client.transaction():
         try:
             if restaurant_exists(restaurant_name):
-                # kind = "Likes"
-                # query = datastore_client.query(kind=kind)
-                # query.add_filter('restaurantName', '==', restaurant_name)
-                # query.add_filter('username', '==', user)
-                # result = list(query.fetch())
-                # if len(result) == 0:
-                #     return 'Already disliked', 400
-
                 kind = "Likes"
                 like_key = datastore_client.key(kind, restaurant_name + "_" + user)
                 like_entity = datastore.Entity(like_key)
@@ -443,7 +387,6 @@ def user_dislikes_restaurant():
                 like_entity["restaurantName"] = restaurant_name
                 like_entity["value"] = -1
                 datastore_client.put(like_entity)
-                restaurant_likes_update(restaurant_name, -1)
         except exceptions.Conflict:
             return 'Conflict - user dislikes restaurant', 400
 
@@ -452,13 +395,20 @@ def user_dislikes_restaurant():
 
 @app.route('/restaurantLikes', methods=['GET'])
 @auth.login_required
-def get_restaurant_likes_counter():
+def get_restaurant_likes():
     restaurant_name = request.args.get("name")
+    is_like = bool(request.args.get("like"))
 
-    kind = "LikesCounter"
+    kind = "Likes"
     query = datastore_client.query(kind=kind)
     query.add_filter('restaurantName', '==', restaurant_name)
-    result = list(query.fetch())
+    if is_like:
+        query.add_filter('value', '==', 1)
+    elif is_like is False:
+        query.add_filter('value', '==', -1)
+    result = query.keys_only()
+    print("Result keys_only: ", result)
+    return "", 200
 
     if len(result) == 0:
         return "Restaurant not found in likesCounter", 404
