@@ -411,7 +411,7 @@ def get_restaurant_likes():
     keys = list([entity.key for entity in query.fetch()])
     print("Result keys_only: ", keys)
     result = len(keys)
-    return restaurant_name + " has " + result + " " + is_like + "s", 200
+    return restaurant_name + " has " + str(result) + " " + is_like + "s", 200
 
 
 if __name__ == "__main__":
