@@ -398,6 +398,7 @@ def user_dislikes_restaurant():
 def get_restaurant_likes():
     restaurant_name = request.args.get("name")
     is_like = request.args.get("like")
+    print("like: ", is_like)
 
     kind = "Likes"
     query = datastore_client.query(kind=kind)
@@ -406,8 +407,9 @@ def get_restaurant_likes():
         query.add_filter('value', '=', 1)
     elif is_like == "dislike":
         query.add_filter('value', '=', -1)
-    result = query.keys_only()
-    print("Result keys_only: ", result)
+    query.keys_only()
+    keys = list([entity.key for entity in query.fetch()])
+    print("Result keys_only: ", keys)
     return "", 200
 
     if len(result) == 0:
