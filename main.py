@@ -397,11 +397,20 @@ def user_likes_restaurant():
     with datastore_client.transaction():
         try:
             if restaurant_exists(restaurant_name):
+                # kind = "Likes"
+                # query = datastore_client.query(kind=kind)
+                # query.add_filter('restaurantName', '==', restaurant_name)
+                # query.add_filter('username', '==', user)
+                # result = list(query.fetch())
+                # if len(result) != 0:
+                #     return 'Already liked', 400
+
                 kind = "Likes"
-                like_key = datastore_client.key(kind)
+                like_key = datastore_client.key(kind, restaurant_name + "_" + user)
                 like_entity = datastore.Entity(like_key)
                 like_entity["username"] = user
                 like_entity["restaurantName"] = restaurant_name
+                like_entity["value"] = 1
                 datastore_client.put(like_entity)
                 restaurant_likes_update(restaurant_name, 1)
         except exceptions.Conflict:
@@ -419,11 +428,20 @@ def user_dislikes_restaurant():
     with datastore_client.transaction():
         try:
             if restaurant_exists(restaurant_name):
-                kind = "Dislikes"
-                like_key = datastore_client.key(kind)
+                # kind = "Likes"
+                # query = datastore_client.query(kind=kind)
+                # query.add_filter('restaurantName', '==', restaurant_name)
+                # query.add_filter('username', '==', user)
+                # result = list(query.fetch())
+                # if len(result) == 0:
+                #     return 'Already disliked', 400
+
+                kind = "Likes"
+                like_key = datastore_client.key(kind, restaurant_name + "_" + user)
                 like_entity = datastore.Entity(like_key)
                 like_entity["username"] = user
                 like_entity["restaurantName"] = restaurant_name
+                like_entity["value"] = -1
                 datastore_client.put(like_entity)
                 restaurant_likes_update(restaurant_name, -1)
         except exceptions.Conflict:
