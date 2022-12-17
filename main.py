@@ -410,20 +410,8 @@ def get_restaurant_likes():
     query.keys_only()
     keys = list([entity.key for entity in query.fetch()])
     print("Result keys_only: ", keys)
-    return "", 200
-
-    if len(result) == 0:
-        return "Restaurant not found in likesCounter", 404
-
-    restaurant_counter = []
-    for entity in result:
-        restaurant_counter.append({
-            "restaurantName": entity["restaurantName"],
-            "likes": entity["likes"],
-            "dislikes": entity["dislikes"]
-        })
-
-    return restaurant_counter, 200
+    result = len(keys)
+    return restaurant_name + " has " + result + " " + is_like + "s", 200
 
 
 if __name__ == "__main__":
