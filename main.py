@@ -352,19 +352,21 @@ def restaurant_likes_update(restaurant_name, value):
     like_counter_key = datastore_client.key(kind, restaurant_name)
     like_counter_entity = datastore_client.get(like_counter_key)
 
-    if not like_counter_entity:
-        like_counter_entity["restaurantName"] = restaurant_name
+    if like_counter_entity is None:
+        counter = datastore.Entity(key=like_counter_key)
 
-        print("New LikeCounterEntity: ", like_counter_entity)
+        counter["restaurantName"] = restaurant_name
+
+        print("New LikeCounterEntity: ", counter)
 
         if value == -1:
-            like_counter_entity['dislikes'] = 1
-            like_counter_entity['likes'] = 0
+            counter['dislikes'] = 1
+            counter['likes'] = 0
         elif value == 1:
-            like_counter_entity['likes'] = 1
-            like_counter_entity['dislikes'] = 0
+            counter['likes'] = 1
+            counter['dislikes'] = 0
 
-        datastore_client.put(like_counter_entity)
+        datastore_client.put(counter)
     else:
         like_counter_entity["restaurantName"] = restaurant_name
 
