@@ -401,11 +401,11 @@ def get_restaurant_likes():
 
     kind = "Likes"
     query = datastore_client.query(kind=kind)
-    query.add_filter('restaurantName', '==', restaurant_name)
+    query.add_filter('restaurantName', '=', restaurant_name)
     if is_like:
-        query.add_filter('value', '==', 1)
+        query.add_filter('value', '=', 1)
     elif is_like is False:
-        query.add_filter('value', '==', -1)
+        query.add_filter('value', '=', -1)
     result = query.keys_only()
     print("Result keys_only: ", result)
     return "", 200
