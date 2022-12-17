@@ -354,10 +354,12 @@ def restaurant_likes_update(restaurant_name, value):
     like_counter_entity["restaurantName"] = restaurant_name
     like_counter_entity["restaurantName"] = restaurant_name
 
+    print("LikeCounterEntity: ", like_counter_entity)
+
     if value == -1:
-        like_counter_entity["dislikes"] -= 1
+        like_counter_entity['dislikes'] -= 1
     elif value == 1:
-        like_counter_entity["likes"] += 1
+        like_counter_entity['likes'] += 1
 
     like_counter_entity.update()
 
